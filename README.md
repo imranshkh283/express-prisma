@@ -1,2 +1,2 @@
-# express-prisma
+# express-prisma-mysql
 express-prisma
