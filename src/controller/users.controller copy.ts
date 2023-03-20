@@ -5,10 +5,25 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-const insertUser = async (req: Request, res: Response) => {
+const insertUser = async (req: Request, res: Response, next:NextFunction) => {
+
     const { email, name, password, role } = req.body;
-    const user = userService.createUser(email,name,password)
-    res.status(200).send(user)
+    if(await getUserByEmail(req.body.email)){
+        res.status(500).json('Email already taken')
+    }
+    const user = await prisma.user.create({
+        data: {
+            email: String(email),
+            name: String(name),
+            password: await bcrypt.hash(password, 8),
+            role : (role == '1') ? 'USER' : 'ADMIN'
+        }
+    })
+
+    return res.status(200).json({
+        message:'user create',
+        data: user
+    })
 }
 
 const getUserByEmail = async (email:string) => {
