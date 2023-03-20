@@ -6,18 +6,33 @@ const prisma = new PrismaClient();
 
 const insertUser = async (req: Request, res: Response, next:NextFunction) => {
 
-    const { email, name, password } = req.body;
+    const { email, name, password, role } = req.body;
+    if(await getUserByEmail(req.body.email)){
+        res.status(500).json('Email already taken')
+    }
     const user = await prisma.user.create({
         data: {
             email: String(email),
             name: String(name),
-            password: await bcrypt.hash(password, 8)
+            password: await bcrypt.hash(password, 8),
+            role : (role == '1') ? 'USER' : 'ADMIN'
         }
     })
 
     return res.status(200).json({
         message:'user create',
         data: user
+    })
+}
+
+const getUserByEmail = async (email:string) => {
+    return await prisma.user.findUnique({
+        where: {
+            email:email,
+        },
+        select:{
+            email:true,
+        }
     })
 }
 
