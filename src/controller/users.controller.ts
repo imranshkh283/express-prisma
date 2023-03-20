@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 const insertUser = async (req: Request, res: Response) => {
     const { email, name, password, role } = req.body;
-    const user = userService.createUser(email,name,password)
+    const user = await userService.createUser(email,name,password,role)
     res.status(200).send(user)
 }
 
