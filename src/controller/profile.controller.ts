@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, response } from "express";
 import { Profile, Prisma, PrismaClient } from "@prisma/client";
-
+import { profileService, userService } from "../services";
 const prisma = new PrismaClient();
 
 const createProfile = async (req : Request, res : Response, next : NextFunction) => {
@@ -8,28 +8,11 @@ const createProfile = async (req : Request, res : Response, next : NextFunction)
     try {
         const {bio, userId} = req.body;
 
-        const getUser = await prisma.profile.findUnique({
-            where: {
-                userId: Number(req.body.userId)
-            },
-            select: {
-                userId: true,
-                user:{
-                    select: {
-                        id:true
-                    }
-                }
-            }
-        })
-        if (getUser?.userId != null) {
-            checkUsers(userId, bio);
+        const getUser = await profileService.getUserById(userId)
+        if (getUser > 0) {
+            await userService.updateUserById(userId, bio);
         } else {
-            const pro = await prisma.profile.create({
-                data : {
-                    bio : String(bio),
-                    userId : Number(userId),
-                }
-            })
+            const pro = await profileService.insertProfile(userId, bio)
             res.json({message : 'success', data : pro})
         }
     } catch (e) {
@@ -106,14 +89,11 @@ const getBioByuserId = async (req: Request, res: Response) => {
     }
 }
 
-const getAllBio = async (req:Request, res:Response) => {
+const getAll = async (req:Request, res:Response) => {
 
     try {
-        const getAll = await prisma.profile.findMany();
-        const cnt = await prisma.profile.count()
+        const getAll = await profileService.getAllBio();
         return res.status(200).json({
-            message: "Success",
-            count : cnt,
             getAll
         });
     } catch (e) {
@@ -125,5 +105,5 @@ export default {
     createProfile,
     updateProfile,
     getBioByuserId,
-    getAllBio
+    getAll
 }

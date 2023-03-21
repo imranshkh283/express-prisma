@@ -1,4 +1,4 @@
-import httpStatus from 'http-status';
+import {updateUser} from '../interfaces/user';
 import { Role, PrismaClient, Prisma,User } from '@prisma/client';
 import { encryptPassword } from '../utils/encryption';
 
@@ -32,7 +32,7 @@ const getUserByEmail = async (
 
 const updateUserById = async(
   userId:number, 
-  updateBody:Prisma.UserUpdateInput,
+  updateBody:updateUser,
   ) => {
     const updateUser = await prisma.user.update({
       where:{id: userId},
