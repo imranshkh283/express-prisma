@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { Role, PrismaClient } from '@prisma/client';
+import { Role, PrismaClient, Prisma,User } from '@prisma/client';
 import { encryptPassword } from '../utils/encryption';
 
 const prisma = new PrismaClient();
@@ -9,10 +9,7 @@ const createUser = async (
     name: string,
     password:string,
     role: string
-) => {
-    if(await getUserByEmail(email)){
-        
-    }
+) => {    
     return await prisma.user.create({
         data:{
             email,
@@ -26,14 +23,39 @@ const createUser = async (
 const getUserByEmail = async (
     email: string
   ) => {
-    return prisma.user.findUnique({
-      where: { email },
-      select: {
-        email:true
-      }
+    return await prisma.user.count({
+        where:{
+            email:email
+        }
     })
-  };
+};
+
+const updateUserById = async(
+  userId:number, 
+  updateBody:Prisma.UserUpdateInput,
+  ) => {
+    const updateUser = await prisma.user.update({
+      where:{id: userId},
+      data:updateBody,
+      select:{id:true,name:true,email:true}
+    })
+    return updateUser;
+}
+
+const getAllUser = async () => {
+  return await prisma.user.findMany();
+} 
+
+const deleteUserById = async(
+  id:number
+) => {
+  await prisma.user.delete({ where: { id: id } });
+}
 
 export default {
     createUser,
+    getUserByEmail,
+    getAllUser,
+    updateUserById,
+    deleteUserById,
 };

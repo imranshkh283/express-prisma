@@ -9,5 +9,4 @@ router.post('/create', usersController.insertUser);
 router.post('/update/:id', usersController.updateUsers);
 router.post('/delete/:id', usersController.deleteUser);
 
-router.post('/login', usersController.login);
 export default router;
